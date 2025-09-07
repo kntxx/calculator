@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Minimal Todo — Black & White</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#ffffff; /* white */
+      --fg:#0b0b0b; /* almost-black */
+      --muted:#9aa0a6;
+      --card:#fbfbfb;
+      --glass: rgba(11,11,11,0.04);
+      --accent: #000000;
+      --shadow: 0 6px 18px rgba(11,11,11,0.06);
+      --radius: 16px;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--fg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:grid;
+      place-items:center;
+      padding:40px 24px;
+      font-weight:300; /* thin */
+    }
+
+    .container{
+      width:100%;
+      max-width:720px;
+      background:linear-gradient(180deg,var(--card),#fff);
+      border-radius:var(--radius);
+      padding:28px;
+      box-shadow:var(--shadow);
+      border:1px solid var(--glass);
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    h1{
+      font-size:20px;
+      margin:0;
+      letter-spacing:0.2px;
+      font-weight:600;
+    }
+
+    .subtitle{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:300;
+    }
+
+    .input-row{
+      display:flex;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .input{
+      flex:1;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      background:transparent;
+      border-radius:12px;
+      padding:12px 14px;
+      border:1px solid rgba(0,0,0,0.06);
+      backdrop-filter:blur(4px);
+      transition:box-shadow .15s, border-color .15s;
+    }
+
+    .input:focus-within{
+      box-shadow:0 6px 18px rgba(0,0,0,0.06);
+      border-color:rgba(0,0,0,0.12);
+    }
+
+    .input input{
+      border:0;
+      outline:0;
+      font-size:15px;
+      background:transparent;
+      color:var(--fg);
+      width:100%;
+      font-weight:300;
+    }
+
+    button.add{
+      background:var(--fg);
+      color:var(--bg);
+      border:0;
+      padding:10px 14px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:600;
+      letter-spacing:0.4px;
+    }
+
+    .filters{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-bottom:12px;
+    }
+
+    .chip{
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:13px;
+      cursor:pointer;
+      border:1px solid rgba(0,0,0,0.06);
+      background:transparent;
+    }
+
+    .chip.active{
+      background:var(--fg);
+      color:var(--bg);
+      font-weight:600;
+    }
+
+    ul.list{
+      list-style:none;
+      padding:0;
+      margin:0;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    li.item{
+      background:transparent;
+      border-radius:12px;
+      padding:12px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      border:1px solid rgba(0,0,0,0.04);
+    }
+
+    .checkbox{
+      width:20px;height:20px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);display:grid;place-items:center;cursor:pointer;
+    }
+
+    .checkbox.checked{background:var(--fg);border-color:var(--fg)}
+
+    .text{
+      flex:1;
+      font-size:15px;
+      color:var(--fg);
+      font-weight:300;
+      word-break:break-word;
+    }
+
+    .text.completed{
+      text-decoration:line-through;
+      color:var(--muted);
+      font-weight:300;
+    }
+
+    .actions{display:flex;gap:8px;align-items:center}
+    .btn-ghost{background:transparent;border:0;cursor:pointer;padding:6px;border-radius:8px}
+
+    .count{
+      margin-top:12px;
+      font-size:13px;color:var(--muted)
+    }
+
+    .empty{padding:28px;text-align:center;color:var(--muted);font-size:14px}
+
+    /* Small responsive tweaks */
+    @media (max-width:420px){
+      .container{padding:18px}
+      h1{font-size:18px}
+    }
+  </style>
+</head>
+<body>
+  <main class="container" role="main">
+    <header>
+      <div>
+        <h1>Things to do</h1>
+        <div class="subtitle">simple • focused • black & white</div>
+      </div>
+      <div style="font-size:13px;color:var(--muted)">Press Enter to add</div>
+    </header>
+
+    <div class="input-row">
+      <label class="input" aria-label="Add new task">
+        <input id="newTask" type="text" placeholder="Add a task — e.g. Finish school project" autocomplete="off">
+      </label>
+      <button class="add" id="addBtn" title="Add task">Add</button>
+    </div>
+
+    <div class="filters" role="tablist" aria-label="Filters">
+      <button class="chip active" data-filter="all">All</button>
+      <button class="chip" data-filter="active">Active</button>
+      <button class="chip" data-filter="completed">Completed</button>
+      <div style="flex:1"></div>
+      <button class="chip" id="clearCompleted">Clear completed</button>
+    </div>
+
+    <ul class="list" id="list" aria-live="polite"></ul>
+
+    <div class="empty" id="emptyMsg" hidden>
+      You're all caught up ✨
+    </div>
+
+    <div class="count" id="count"></div>
+  </main>
+
+  <script>
+    // Minimal Todo App (vanilla JS)
+    const q = s => document.querySelector(s);
+    const newTaskInput = q('#newTask');
+    const addBtn = q('#addBtn');
+    const listEl = q('#list');
+    const countEl = q('#count');
+    const emptyMsg = q('#emptyMsg');
+    const filterButtons = Array.from(document.querySelectorAll('.chip[data-filter]'));
+    const clearCompletedBtn = q('#clearCompleted');
+
+    const STORAGE_KEY = 'minimal-todo-v1';
+    let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    let filter = 'all';
+
+    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); }
+
+    function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+
+    function addTask(text){
+      if(!text || !text.trim()) return;
+      tasks.unshift({id:uid(), text:text.trim(), done:false, created:Date.now()});
+      save();
+      render();
+    }
+
+    function toggleDone(id){
+      tasks = tasks.map(t=> t.id===id ? {...t, done: !t.done} : t);
+      save(); render();
+    }
+
+    function removeTask(id){
+      tasks = tasks.filter(t=> t.id!==id);
+      save(); render();
+    }
+
+    function editTask(id, newText){
+      tasks = tasks.map(t=> t.id===id ? {...t, text:newText} : t);
+      save(); render();
+    }
+
+    function clearCompleted(){ tasks = tasks.filter(t=> !t.done); save(); render(); }
+
+    function setFilter(f){ filter = f; filterButtons.forEach(b=> b.classList.toggle('active', b.dataset.filter===f)); render(); }
+
+    function filteredTasks(){
+      if(filter==='active') return tasks.filter(t=> !t.done);
+      if(filter==='completed') return tasks.filter(t=> t.done);
+      return tasks;
+    }
+
+    function render(){
+      listEl.innerHTML = '';
+      const items = filteredTasks();
+      if(items.length===0){ emptyMsg.hidden = false; } else { emptyMsg.hidden = true; }
+
+      items.forEach(task=>{
+        const li = document.createElement('li'); li.className='item';
+
+        const cb = document.createElement('div'); cb.className='checkbox' + (task.done? ' checked':'');
+        cb.setAttribute('role','button'); cb.setAttribute('aria-pressed', String(task.done)); cb.tabIndex=0;
+        cb.innerHTML = task.done ? '<svg width="12" height="9" viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.6 1L4.2 7.4 1.4 4.6" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '';
+        cb.addEventListener('click', ()=> toggleDone(task.id));
+        cb.addEventListener('keydown', (e)=> { if(e.key==='Enter' || e.key===' ') { e.preventDefault(); toggleDone(task.id); } });
+
+        const txt = document.createElement('div'); txt.className='text' + (task.done? ' completed':'');
+        txt.textContent = task.text;
+
+        // double-click to edit
+        txt.addEventListener('dblclick', ()=>{
+          const input = document.createElement('input');
+          input.type='text'; input.value=task.text; input.style.width='100%'; input.style.fontSize='15px'; input.style.fontFamily='inherit'; input.style.background='transparent'; input.style.border='0';
+          txt.replaceWith(input); input.focus();
+
+          function commit(){
+            const value = input.value.trim();
+            if(!value) removeTask(task.id); else editTask(task.id, value);
+          }
+
+          input.addEventListener('blur', commit);
+          input.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ commit(); } if(e.key==='Escape'){ render(); } });
+        });
+
+        const actions = document.createElement('div'); actions.className='actions';
+        const editBtn = document.createElement('button'); editBtn.className='btn-ghost'; editBtn.title='Edit'; editBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21l3-1 11-11 1-3-3 1L4 18l-1 3z" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        editBtn.addEventListener('click', ()=>{ txt.dispatchEvent(new MouseEvent('dblclick')); });
+
+        const delBtn = document.createElement('button'); delBtn.className='btn-ghost'; delBtn.title='Delete'; delBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 6v14a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 11v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        delBtn.addEventListener('click', ()=> removeTask(task.id));
+
+        actions.append(editBtn, delBtn);
+        li.append(cb, txt, actions);
+        listEl.append(li);
+      });
+
+      // update count
+      const remaining = tasks.filter(t=> !t.done).length;
+      countEl.textContent = `${remaining} item${remaining===1? '':'s'} left`;
+    }
+
+    // init
+    render();
+
+    addBtn.addEventListener('click', ()=>{ addTask(newTaskInput.value); newTaskInput.value=''; newTaskInput.focus(); });
+
+    newTaskInput.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter'){ addTask(newTaskInput.value); newTaskInput.value=''; }
+    });
+
+    filterButtons.forEach(b=> b.addEventListener('click', ()=> setFilter(b.dataset.filter)));
+    clearCompletedBtn.addEventListener('click', ()=>{ clearCompleted(); });
+
+    // expose for debugging (optional)
+    window.__todo = {get: ()=>tasks, save, addTask, clearCompleted};
+  </script>
+</body>
+</html>
